@@ -836,15 +836,15 @@ void CGame::InitialiseWhenRestarting(void)
 
 void CGame::Process(void)
 {
-	HRESULT cooperativeStatus = TEManager::GetD3DDevice()->TestCooperativeLevel();
-	// HRESULT res = TEManager::GetD3DDevice()->Present(NULL, NULL, 0, NULL);
+	HRESULT cooperativeStatus = TExtender::TEManager::GetD3DDevice()->TestCooperativeLevel();
+	// HRESULT res = TExtender::TEManager::GetD3DDevice()->Present(NULL, NULL, 0, NULL);
 
 	if (cooperativeStatus == D3DERR_DEVICELOST) // || res == D3DERR_DEVICELOST)
-		CFontNew::Lost();
+		TExtender::CFontNew::Lost();
 
 	// lost while being minimized, not reset once we're back
 	else if (TEManager::bIsLosted && cooperativeStatus == D3D_OK) // && res == D3DERR_DEVICENOTRESET)
-		CFontNew::Reset();
+		TExtender::CFontNew::Reset();
 
 	CPad::UpdatePads();
 #ifdef USE_CUSTOM_ALLOCATOR

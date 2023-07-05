@@ -23,22 +23,6 @@ namespace TExtender {
         return m_pSprite->Begin(Flags);
     }
 
-    HRESULT CD3DSprite::Draw(LPDIRECT3DTEXTURE9 pTexture, CONST RECT* pSrcRect, CONST D3DXVECTOR3* pCenter, CONST D3DXVECTOR3* pPosition, D3DCOLOR Color) {
-        return m_pSprite->Draw(pTexture, pSrcRect, pCenter, pPosition, Color);
-        /* // implement and use CFontNew::gLetterColors
-        HRESULT result;
-        if (CFontNew::gShadow)
-            result = m_pSprite->Draw(pTexture, pSrcRect, pCenter, pPosition, Color);
-        else {
-            result = m_pSprite->Draw(pTexture, pSrcRect, pCenter, pPosition, D3DCOLOR_RGBA(CFontNew::gLetterColors[CFontNew::gNumLetters].r,
-                CFontNew::gLetterColors[CFontNew::gNumLetters].g, CFontNew::gLetterColors[CFontNew::gNumLetters].b, 
-                CFontNew::gLetterColors[CFontNew::gNumLetters].a));
-            CFontNew::gNumLetters++;
-        }
-        return result;
-        */
-    }
-
     HRESULT CD3DSprite::End() {
         return m_pSprite->End();
     }

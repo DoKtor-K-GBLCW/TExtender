@@ -14,6 +14,7 @@
 #include <d3dx9.h>
 
 #include <string>
+#include <unordered_map>
 
 #define FONT_DEFAULT FONT_BANK
 
@@ -88,8 +89,8 @@ namespace TExtender {
 		static void PrintRTLString(float x, float y, wchar* text);
 		static void PrintStringFromBottom(float x, float y, wchar* str, bool isRTL = false);
 		static void PrintRTLStringFromBottom(float x, float y, wchar* str);
-		static void ProcessTags(char* dest, char* src);
-		static void ProcessTags(wchar* dest, wchar* src);
+		static void ProcessTags(char* dest, char* src, CFontDetails* MyDetails = NULL);
+		static void ProcessTags(wchar* dest, wchar* src, CFontDetails* MyDetails = NULL);
 		static float GetHeightScale(float h, int iFontId = -1);
 		static float GetStringWidth(char* str, char bFull, char bScriptText);
 	};
@@ -101,6 +102,8 @@ namespace TExtender {
 		float _y;
 		int16 m_FontId;
 		CFontDetails _details;
+
+		static std::unordered_map<std::string, CFontDetails> structures;
 
 	public:
 
@@ -118,6 +121,7 @@ namespace TExtender {
 		};
 
 	public:
+
 		TextPrinter& Reset();
 		TextPrinter& CopyFrom(TextPrinter const& tp);
 
@@ -126,6 +130,11 @@ namespace TExtender {
 		~TextPrinter();
 
 		CFontDetails& GetDetails();
+
+		TextPrinter& SaveAs(std::string name);
+		static bool HasStructure(std::string name);
+		TextPrinter& Use(std::string name);
+		static void ClearStructures();
 
 		// Legacy Setters
 		TextPrinter& SetScale(float x, float y);
@@ -142,6 +151,7 @@ namespace TExtender {
 		TextPrinter& SetCentreSize(float s);
 		TextPrinter& SetBackgroundOn(void);
 		TextPrinter& SetBackgroundOff(void);
+		TextPrinter& SetBackgroundColor(CRGBA col);
 		TextPrinter& SetBackGroundOnlyTextOn(void);
 		TextPrinter& SetBackGroundOnlyTextOff(void);
 		TextPrinter& SetPropOn(void);
@@ -152,7 +162,6 @@ namespace TExtender {
 		TextPrinter& SetHorizantalWrap(float wrap);
 		TextPrinter& SetAlphaFade(float fade);
 		TextPrinter& SetDropShadowPosition(int16 pos);
-		TextPrinter& SetBackgroundColor(CRGBA col);
 		TextPrinter& SetBackgroundBorder(CRect const& rect);
 		TextPrinter& SetColor(CRGBA col);
 		TextPrinter& SetDropColor(CRGBA col);
@@ -161,6 +170,7 @@ namespace TExtender {
 		TextPrinter& SetProportional(bool on);
 		// setups text background
 		TextPrinter& SetBackground(bool enable); // , bool includeWrap
+		TextPrinter& SetBackground(bool on, CRGBA col);
 		TextPrinter& SetOrientation(short alignment); // eFontAlignment alignment
 
 		TextPrinter& SetShadowColor(CRGBA col);
@@ -188,7 +198,10 @@ namespace TExtender {
 		TextPrinter& CentreSize(float s);
 		TextPrinter& Centred(bool on, float s);
 		TextPrinter& Background(bool on); // , bool includeWrap
+		TextPrinter& BackgroundColor(CRGBA col);
+		TextPrinter& Background(bool on, CRGBA col);
 		TextPrinter& BackGroundOnlyText(bool on);
+		TextPrinter& BackgroundBorder(CRect const& rect);
 		TextPrinter& Prop(bool on);
 		//  text style
 		TextPrinter& FontStyle(uint8 style);
@@ -196,14 +209,12 @@ namespace TExtender {
 		TextPrinter& HorizantalWrap(float wrap);
 		TextPrinter& AlphaFade(float fade);
 		TextPrinter& DropShadowPosition(int16 pos);
-		TextPrinter& BackgroundColor(CRGBA col);
-		TextPrinter& BackgroundBorder(CRect const& rect);
 		TextPrinter& Color(CRGBA col);
+		TextPrinter& TextColor(CRGBA col);
 		TextPrinter& DropColor(CRGBA col);
 		// Added From Plugin-SDK
 		TextPrinter& Alignment(int align);
 		TextPrinter& Proportional(bool on);
-		// ups text background
 		TextPrinter& Orientation(short alignment); // eFontAlignment alignment
 
 		TextPrinter& ShadowColor(CRGBA col);
@@ -235,6 +246,7 @@ namespace TExtender {
 		CRGBA const& BackgroundColor();
 		CRect const& BackgroundBorder();
 		CRGBA const& Color();
+		CRGBA const& TextColor();
 		CRGBA const& DropColor();
 		// Added From Plugin-SDK
 		int Alignment();

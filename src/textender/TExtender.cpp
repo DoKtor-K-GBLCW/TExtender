@@ -3,7 +3,6 @@
 #include "TExtender.h"
 #include "Sprite2d.h"
 //#include "Messages.h"
-#include "postfx.h"
 #include <string>
 #include <map>
 #include "FileMgr.h"
@@ -11,6 +10,7 @@
 #include "Sprite.h"
 #include "Screen.h"
 #include "postfx.h"
+#include "Colors.h"
 
 namespace TExtender {
 uint8 CFontNew::MAX_NEW_FONTS;
@@ -23,16 +23,31 @@ IDirect3DDevice9* TEManager::GetD3DDevice() {
 	return _RwD3DDevice;
 }
 
-// define D3DSprite constructor here :|
+// we should define some D3DSprite methods here :|
 CD3DSprite::CD3DSprite() {
 	D3DXCreateSprite(TEManager::GetD3DDevice(), &m_pSprite);
+}
+
+HRESULT CD3DSprite::Draw(LPDIRECT3DTEXTURE9 pTexture, CONST RECT* pSrcRect, CONST D3DXVECTOR3* pCenter, CONST D3DXVECTOR3* pPosition, D3DCOLOR Color) {
+	HRESULT result;
+	if (CFontNew::gShadow)
+		result = m_pSprite->Draw(pTexture, pSrcRect, pCenter, pPosition, Color);
+	else {
+		result = m_pSprite->Draw(pTexture, pSrcRect, pCenter, pPosition, D3DCOLOR_RGBA(
+			CFontNew::gLetterColors[CFontNew::gNumLetters].r,
+			CFontNew::gLetterColors[CFontNew::gNumLetters].g,
+			CFontNew::gLetterColors[CFontNew::gNumLetters].b,
+			CFontNew::gLetterColors[CFontNew::gNumLetters].a
+		));
+		CFontNew::gNumLetters++;
+	}
+	return result;	
 }
 
 CD3DSprite *CFontNew::m_pFontSprite;
 std::vector<CNewFont> CFontNew::m_aFonts;
 eTranslation CFontNew::m_Translation;
 int16 CFontNew::m_FontId;
-// actually usage isn't implemented yet
 CRGBA CFontNew::gLetterColors[MAX_TEXT_SIZE];
 unsigned int CFontNew::gNumLetters;
 bool CFontNew::gShadow;
@@ -473,7 +488,7 @@ void CFontNew::PrintString(float x, float y, wchar *text, bool isRTL) {
 	);
 }
 
-void CFontNew::ProcessTags(char *dest, char *src) {
+void CFontNew::ProcessTags(char *dest, char *src, CFontDetails* _details) {
 	// not used in revc
 	bool bBreak = false;
 	static char text[MAX_TEXT_SIZE];
@@ -481,7 +496,11 @@ void CFontNew::ProcessTags(char *dest, char *src) {
 	char *pText = text;
 	strcpy_s(text, src);
 	//CMessages::InsertPlayerControlKeysInString(text);
-	CRGBA currColor = CFont::Details.color;
+
+	if (!_details)
+		_details = &CFont::Details;
+
+	CRGBA currColor(_details->color);
 	unsigned int numLetters = 0;
 	while (true) {
 		// if string was finished
@@ -504,49 +523,51 @@ void CFontNew::ProcessTags(char *dest, char *src) {
 				break;
 			case 'R':
 			case 'r':
-				SetColor(CRGBA(224, 50, 50, CFont::Details.color.alpha)); // HUD_COLOUR_RED
+				currColor = CRGBA(224, 50, 50, _details->color.alpha); // HUD_COLOUR_RED
 				pText++;
 				break;
 			case 'G':
 			case 'g':
-				SetColor(CRGBA(114, 204, 114, CFont::Details.color.alpha));
+				currColor = CRGBA(114, 204, 114, _details->color.alpha);
 				pText++;
 				break;
 			case 'B':
 			case 'b':
-				SetColor(CRGBA(93, 182, 229, CFont::Details.color.alpha));
+				currColor = CRGBA(93, 182, 229, _details->color.alpha);
 				pText++;
 				break;
 			case 'W':
 			case 'w':
-				SetColor(CRGBA(240, 240, 240, CFont::Details.color.alpha)); // HUD_COLOUR_WHITE
+				currColor = CRGBA(240, 240, 240, _details->color.alpha); // HUD_COLOUR_WHITE
 				pText++;
 				break;
 			case 'Y':
 			case 'y':
-				SetColor(CRGBA(240, 200, 80, CFont::Details.color.alpha)); // HUD_COLOUR_YELLOW
+				currColor = CRGBA(240, 200, 80, _details->color.alpha); // HUD_COLOUR_YELLOW
 				pText++;
 				break;
 			case 'P':
 			case 'p':
-				SetColor(CRGBA(132, 102, 226, CFont::Details.color.alpha));
+				currColor = CRGBA(132, 102, 226, _details->color.alpha);
 				pText++;
 				break;
 			case 'l':
-				SetColor(CRGBA(0, 0, 0, CFont::Details.color.alpha));
+				currColor = CRGBA(0, 0, 0, _details->color.alpha);
 				pText++;
 				break;
 			case 'S':
 			case 's':
-				SetColor(CRGBA(240, 240, 240, CFont::Details.color.alpha)); // HUD_COLOUR_WHITE
+				currColor = CRGBA(240, 240, 240, _details->color.alpha); // HUD_COLOUR_WHITE
 				pText++;
 				break;
 			case 'H':
 			case 'h':
-				SetColor(CRGBA(min((float)CFont::Details.color.red * 1.5f, 255.0f),
-					min((float)CFont::Details.color.green * 1.5f, 255.0f),
-					min((float)CFont::Details.color.blue * 1.5f, 255.0f),
-					CFont::Details.color.alpha));
+				currColor = CRGBA(
+					min((float)_details->color.red * 1.5f, 255.0f),
+					min((float)_details->color.green * 1.5f, 255.0f),
+					min((float)_details->color.blue * 1.5f, 255.0f),
+					_details->color.alpha
+				);
 				pText++;
 				break;
 			}
@@ -573,11 +594,8 @@ void CFontNew::ProcessTags(char *dest, char *src) {
 	*pDest = '\0';
 }
 
-void CFontNew::ProcessTags(wchar* dest, wchar* src) {
+void CFontNew::ProcessTags(wchar* dest, wchar* src, CFontDetails* _details) {
 	static wchar_t text[MAX_TEXT_SIZE] = { 0 };
-
-	// You will already know the reason for the FillMemory
-	// if you saw my other comment :P
 
 	// FillMemory fills the variable with zeros, preventing GetStringWidth()
 	// from detecting old text fragments and causing text alignment problems
@@ -589,17 +607,25 @@ void CFontNew::ProcessTags(wchar* dest, wchar* src) {
 	//FillMemory(text, MAX_TEXT_SIZE, 0);
 
 	auto src_t = (wchar_t*)src; // I Love This Part :D
+	unsigned int s_len = min(wcslen(src_t), MAX_TEXT_SIZE);
 
-	wcsncpy_s(text, src_t, min(wcslen(src_t), MAX_TEXT_SIZE));
+	wcsncpy_s(text, src_t, s_len);
 
 	//CMessages::InsertPlayerControlKeysInString(dest);
 
+	if (!_details)
+		_details = &CFont::Details;
+
 	wchar* outText = dest;
-	CRGBA currColor(CFont::Details.color);
+	CRGBA currColor(_details->color);
 	unsigned int numLetters = 0, txtidx = 0;
-	for (size_t i = 0; i <= wcslen(text); i++)
+
+	for (int j = 0; j < MAX_TEXT_SIZE; j++)
+		gLetterColors[j] = Colors::Transparent;
+
+	for (size_t i = 0; i <= s_len; i++)
 	{
-		if (i == wcslen(text))
+		if (i == s_len)
 		{
 			*outText = L'\0';
 			break;
@@ -619,50 +645,52 @@ void CFontNew::ProcessTags(wchar* dest, wchar* src) {
 			// To-Do: Use Colors Class
 			case L'R':
 			case L'r':
-				currColor = CRGBA(224, 50, 50, CFont::Details.color.alpha); // HUD_COLOUR_RED
+				currColor = CRGBA(224, 50, 50, _details->color.alpha); // HUD_COLOUR_RED
 				i++;
 				break;
 			case L'G':
 			case L'g':
-				currColor = CRGBA(114, 204, 114, CFont::Details.color.alpha);
+				currColor = CRGBA(114, 204, 114, _details->color.alpha);
 				i++;
 				break;
 			case L'B':
 			case L'b':
-				currColor = CRGBA(93, 182, 229, CFont::Details.color.alpha);
+				currColor = CRGBA(93, 182, 229, _details->color.alpha);
 				i++;
 				break;
 			case L'W':
 			case L'w':
-				currColor = CRGBA(240, 240, 240, CFont::Details.color.alpha); // HUD_COLOUR_WHITE
+				currColor = CRGBA(240, 240, 240, _details->color.alpha); // HUD_COLOUR_WHITE
 				i++;
 				break;
 			case L'H':
 			case L'h':
-				currColor = CRGBA((unsigned char)(min((float)CFont::Details.color.r * 1.5f, 255.0f)),
-					(unsigned char)(min((float)CFont::Details.color.g * 1.5f, 255.0f)),
-					(unsigned char)(min((float)CFont::Details.color.b * 1.5f, 255.0f)),
-					CFont::Details.color.alpha);
+				currColor = CRGBA(
+					(unsigned char)(min((float)_details->color.r * 1.5f, 255.0f)),
+					(unsigned char)(min((float)_details->color.g * 1.5f, 255.0f)),
+					(unsigned char)(min((float)_details->color.b * 1.5f, 255.0f)),
+					_details->color.alpha
+				);
 				i++;
 				break;
 			case L'Y':
 			case L'y':
-				currColor = CRGBA(240, 200, 80, CFont::Details.color.alpha); // HUD_COLOUR_YELLOW
+				currColor = CRGBA(240, 200, 80, _details->color.alpha); // HUD_COLOUR_YELLOW
 				i++;
 				break;
 			case L'P':
 			case L'p':
-				currColor = CRGBA(132, 102, 226, CFont::Details.color.alpha);
+				currColor = CRGBA(132, 102, 226, _details->color.alpha);
 				i++;
 				break;
 			case L'L':
 			case L'l':
-				currColor = CRGBA(0, 0, 0, CFont::Details.color.alpha);
+				currColor = CRGBA(0, 0, 0, _details->color.alpha);
 				i++;
 				break;
 			case L'S':
 			case L's':
-				currColor = CRGBA(240, 240, 240, CFont::Details.color.alpha); // HUD_COLOUR_WHITE
+				currColor = CRGBA(240, 240, 240, _details->color.alpha); // HUD_COLOUR_WHITE
 				i++;
 				break;
 			default:
@@ -775,6 +803,8 @@ void CNewFont::GetTextRect(CRect* rect, float x, float y, CFontDetails _fd, wcha
 }
 
 /// TextPrinter Class
+std::unordered_map<std::string, CFontDetails> TextPrinter::structures;
+
 TextPrinter::TextPrinter()
 {
 	Reset();
@@ -820,6 +850,33 @@ TextPrinter::GetDetails()
 	return _details;
 }
 
+TextPrinter& TextPrinter::SaveAs(std::string name)
+{
+	CFontDetails structure = CFontDetails(_details);
+	structures[name] = structure;
+	return *this;
+}
+
+bool TextPrinter::HasStructure(std::string name)
+{
+	return structures.find(name) != structures.end();
+}
+
+TextPrinter& TextPrinter::Use(std::string name)
+{
+	auto iter = structures.find(name);
+	if (iter != structures.end()) {
+		_details = CFontDetails(iter->second);
+		m_FontId = _details.fId;
+	}
+	return *this;
+}
+
+void TextPrinter::ClearStructures()
+{
+	structures.clear();
+}
+
 TextPrinter&
 TextPrinter::Reset()
 {
@@ -856,6 +913,12 @@ TextPrinter::SetBackground(bool enable) // , bool includeWrap
 {
 	_details.background = enable;
 	return *this;
+}
+
+TextPrinter&
+TextPrinter::SetBackground(bool on, CRGBA col)
+{
+	return SetBackground(on).SetBackgroundColor(col);
 }
 
 TextPrinter &
@@ -1166,6 +1229,12 @@ TextPrinter::Background(bool on) // , bool includeWrap
 	return on ? SetBackgroundOn() : SetBackgroundOff();
 }
 
+TextPrinter&
+TextPrinter::Background(bool on, CRGBA col)
+{
+	return SetBackground(on, col);
+}
+
 TextPrinter &
 TextPrinter::Orientation(short alignment) // eFontAlignment alignment
 {
@@ -1240,6 +1309,12 @@ TextPrinter::Outline(float s, CRGBA col)
 
 TextPrinter &
 TextPrinter::Color(CRGBA col)
+{
+	return SetColor(col);
+}
+
+TextPrinter&
+TextPrinter::TextColor(CRGBA col)
 {
 	return SetColor(col);
 }
@@ -1467,6 +1542,12 @@ TextPrinter::Color()
 	return _details.color;
 }
 
+CRGBA const&
+TextPrinter::TextColor()
+{
+	return _details.color;
+}
+
 bool
 TextPrinter::Justify()
 {
@@ -1565,7 +1646,7 @@ TextPrinter::Print(float x, float y, wchar* text, bool isRTL)
 
 	//CFontNew::Translate((char*)text, Text);
 
-	CFontNew::ProcessTags(TaggedText, text);
+	CFontNew::ProcessTags(TaggedText, text, &_details);
 	//CFont::FilterOutTokensFromString(text);
 
 	/*if (CFont::Details.background) {

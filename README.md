@@ -69,9 +69,8 @@ tPrinter
     .Proportional(true)
     .Scale(isPersian ? CVector2D(SCREEN_SCALE_X(0.72f), SCREEN_SCALE_Y(1.4f)) : CVector2D(SCREEN_SCALE_X(0.52f), SCREEN_SCALE_Y(1.1f)))
     .FontStyle(notIsEnglish ? 7 : 0)
-    .Background(true)
     .Color(CRGBA(175, 175, 175, 255))
-    .BackgroundColor(CRGBA(64, 0, 128, fAlpha * 0.9f));
+    .Background(true, CRGBA(64, 0, 128, fAlpha * 0.9f));
 
 if (notIsEnglish)
     tPrinter
@@ -101,11 +100,12 @@ auto newPrinter = TExtender::TextPrinter(tPrinter);
 
 ### Well, As You Guessed We Have It!
 
-> #### Question 2. Tired of Creating Font Textures for every Single New Font? What If You Changed your Mind or Want A New One
+> #### Question 2. Tired of Creating Font Textures for every Single New Font? What If You Changed your Mind or Want A New One?
 
-### What If We Could Any .TTF Font In The World, Without Converting To GTA Format?!
+### What If We Could Use Any .TTF Font In The World, Without Converting To GTA Format?!
 
 ### Well, As You Guessed We Have It!
+
 
 > #### Question 3. Tired of  Searching for “Best GXT Editor” That Supports Every World Language Without Problem?
 
@@ -113,15 +113,14 @@ auto newPrinter = TExtender::TextPrinter(tPrinter);
 
 ### Well, As You Guessed We Have It!
 
+
 I Had These Problems too, So I Decided To Make
 
 > ### A Revolution In Text Rendering
 
-Especially When I Saw What Powers We Can Get With [**Plugin-SDK**](https://github.com/DK22Pac/plugin-sdk)
-
 #### I Named That:
 
-TExtender
+## TExtender
 
 #### A Combined Abbreviation Of: **Text Extender** + **Text Render 😁**
 
@@ -197,7 +196,7 @@ if (!CTheScripts::bPlayerIsInTheStatium)
         .DropShadowPosition(2)
         .DropColor(CRGBA(0, 0, 0, fZoneAlpha))
         .FontStyle(FONT_BANK)
-        .Color(CRGBA(ZONE_COLOR.r, ZONE_COLOR.g, ZONE_COLOR.b, fZoneAlpha))
+        .TextColor(CRGBA(ZONE_COLOR.r, ZONE_COLOR.g, ZONE_COLOR.b, fZoneAlpha))
         .PrintFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(128.0f), m_ZoneToPrint);
 ```
 
@@ -215,13 +214,17 @@ float fRightJustifyWrap = tPrinter.RightJustifyWrap();
 Plus It Suppports `Shadow` & `Outline (Edge in SA)` Together
 
 ```cpp
-tPrinter.ShadowWidth(0.5f).OutlineWidth(1.0f)
+tPrinter
+    .ShadowWidth(0.5f)
+    .OutlineWidth(1.0f)
 ```
 
-Want A Special Color For Each Of Them?
+Want A Special Color For Each Of Them? (besides of `DropColor`)
 
 ```cpp
-tPrinter.ShadowColor(CRGBA(0, 255, 0, 255)).OutlineColor(Colors.Orange)
+tPrinter
+    .ShadowColor(CRGBA(0, 255, 0, 255))
+    .OutlineColor(Colors::Orange)
 ```
 
 Yes It Supports [Colors From Plugin-SDK](https://github.com/DK22Pac/plugin-sdk/blob/master/shared/Color.h) 
@@ -229,7 +232,9 @@ Yes It Supports [Colors From Plugin-SDK](https://github.com/DK22Pac/plugin-sdk/b
 Expect An Easier Way? Right
 
 ```cpp
-tPrinter.Shadow(0.5f, CRGBA(0, 255, 0, 255)).Outline(1.0f, Colors.Orange)
+tPrinter
+    .Shadow(0.5f, CRGBA(0, 255, 0, 255))
+    .Outline(1.0f, Colors.Orange)
 ```
 
 In GTA If We Have Setted `SetJustifyOn()` Then We Should `SetWrapx()`
@@ -244,7 +249,7 @@ As You May Noticed There Is:  
 tPrinter.RightJustify(true, 0.0f)
 ```
 
-But Also:
+But Also We Can:
 
 ```cpp
 tPrinter.Justify(true);
@@ -256,11 +261,49 @@ tPrinter.Centred(true);
 tPrinter.HorizantalWrap(0.5f); // works for any of them that is active now
 ```
 
+### Create Re-Usable Templates:
+```cpp
+// Define
+TextPrinter tPrinter;
+tPrinter
+    .AlphaFade(fAlpha)
+    .Proportional(true)
+    .Scale(CVector2D(SCREEN_SCALE_X(0.72f), SCREEN_SCALE_Y(1.4f)))
+    .FontStyle(8)
+    .Background(true, CRGBA(64, 0, 128, fAlpha * 0.9f))
+    .BackGroundOnlyText(false)
+    .DropShadowPosition(0)
+    .TextColor(CRGBA(175, 175, 175, 255));
+
+if (isPersian) {
+    tPrinter
+        .RightJustify(true)
+        .Alignment(ALIGN_RIGHT)
+        .RightJustifyWrap(SCREEN_SCALE_FROM_RIGHT(200.0f + 34.0f - 4.0f));
+}
+else
+    tPrinter.WrapX(SCREEN_SCALE_X(200.0f + 34.0f - 4.0f));
+
+tPrinter.SaveAs("MSG_BOX");
+
+// Use SomeWhere Else
+TextPrinter newPrinter;
+if (newPrinter.HasStructure("MSG_BOX")) {
+    newPrinter
+        .Use("MSG_BOX")
+        .Color(CRGBA(255, 0, 0, 255)); // New Color Won't Be Saved On "MSG_BOX" Template
+
+    newPrinter
+        .SaveAs("MSG_BOX"); // Now It's Saved
+}
+
+```
+
 #### You Want To Use Old Sytax And Just Use New Benefits Like NewFontLoader & NewTextLoader ??
 
-### Really?!! But Why ?!
+#### Really?!! But Why ?!
 
-However You Can:
+However It's Possible:
 
 It's Old Boring Code That R\* Did In 2002:
 
@@ -340,7 +383,7 @@ CFontNew::SetRightJustifyOn();
 
 Basically Doesnt Have Any Difference
 
-### How To Include New Fonts?
+### How To Add New Fonts?
 
 Open `directFont.ini`
 
@@ -391,7 +434,7 @@ DoKtor K. - Who Enjoys Coding And Loves Enjoyable Code
 
 [DK22Pac](https://github.com/DK22Pac) - Who Started With A Great Belief To "Change" And Started The Great Project Plugin-SDK
 
-[\-AG](https://github.com/gennariarmando) - Who Learns Me A Lot, without learning directly :D
+[\_AG](https://github.com/gennariarmando) - Who Learns Me A Lot, without learning directly :D
 
 All Of [Plugin-SDK Contributors](https://github.com/DK22Pac/plugin-sdk/graphs/contributors)
 
