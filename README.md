@@ -88,7 +88,7 @@ tPrinter.Print(notIsEnglish ? SCREEN_SCALE_FROM_RIGHT(34.0f) : SCREEN_SCALE_X(34
 #### And If We Want To Duplicate:
 
 ```cpp
-TExtender::TextPrinter newPrinter;
+TextPrinter newPrinter;
 newPrinter.CopyFrom(tPrinter); // call before tPrinter invalidates
 ```
 
@@ -98,13 +98,55 @@ newPrinter.CopyFrom(tPrinter); // call before tPrinter invalidates
 auto newPrinter = TExtender::TextPrinter(tPrinter);
 ```
 
+## Or:
+
+### Create Re-Usable Templates:
+```cpp
+// Define
+TextPrinter tPrinter;
+tPrinter
+    .AlphaFade(fAlpha)
+    .Proportional(true)
+    .Scale(CVector2D(SCREEN_SCALE_X(0.72f), SCREEN_SCALE_Y(1.4f)))
+    .FontStyle(8)
+    .Background(true, CRGBA(64, 0, 128, fAlpha * 0.9f))
+    .BackGroundOnlyText(false)
+    .DropShadowPosition(0)
+    .TextColor(CRGBA(175, 175, 175, 255));
+
+if (isPersian) {
+    tPrinter
+        .RightJustify(true)
+        .Alignment(ALIGN_RIGHT)
+        .RightJustifyWrap(SCREEN_SCALE_FROM_RIGHT(200.0f + 34.0f - 4.0f));
+}
+else
+    tPrinter.WrapX(SCREEN_SCALE_X(200.0f + 34.0f - 4.0f));
+
+tPrinter.SaveAs("MSG_BOX");
+
+// Use SomeWhere Else
+TextPrinter newPrinter;
+if (TextPrinter::HasStructure("MSG_BOX")) {
+    newPrinter
+        .Use("MSG_BOX")
+        .Color(CRGBA(255, 0, 0, 255)); // New Color Won't Be Saved On "MSG_BOX" Template
+
+    newPrinter
+        .SaveAs("MSG_BOX"); // Now It's Saved
+}
+
+```
+
 ### Well, As You Guessed We Have It!
+
 
 > #### Question 2. Tired of Creating Font Textures for every Single New Font? What If You Changed your Mind or Want A New One?
 
 ### What If We Could Use Any .TTF Font In The World, Without Converting To GTA Format?!
 
 ### Well, As You Guessed We Have It!
+
 
 
 > #### Question 3. Tired of  Searching for “Best GXT Editor” That Supports Every World Language Without Problem?
@@ -261,44 +303,6 @@ tPrinter.Centred(true);
 tPrinter.HorizantalWrap(0.5f); // works for any of them that is active now
 ```
 
-### Create Re-Usable Templates:
-```cpp
-// Define
-TextPrinter tPrinter;
-tPrinter
-    .AlphaFade(fAlpha)
-    .Proportional(true)
-    .Scale(CVector2D(SCREEN_SCALE_X(0.72f), SCREEN_SCALE_Y(1.4f)))
-    .FontStyle(8)
-    .Background(true, CRGBA(64, 0, 128, fAlpha * 0.9f))
-    .BackGroundOnlyText(false)
-    .DropShadowPosition(0)
-    .TextColor(CRGBA(175, 175, 175, 255));
-
-if (isPersian) {
-    tPrinter
-        .RightJustify(true)
-        .Alignment(ALIGN_RIGHT)
-        .RightJustifyWrap(SCREEN_SCALE_FROM_RIGHT(200.0f + 34.0f - 4.0f));
-}
-else
-    tPrinter.WrapX(SCREEN_SCALE_X(200.0f + 34.0f - 4.0f));
-
-tPrinter.SaveAs("MSG_BOX");
-
-// Use SomeWhere Else
-TextPrinter newPrinter;
-if (newPrinter.HasStructure("MSG_BOX")) {
-    newPrinter
-        .Use("MSG_BOX")
-        .Color(CRGBA(255, 0, 0, 255)); // New Color Won't Be Saved On "MSG_BOX" Template
-
-    newPrinter
-        .SaveAs("MSG_BOX"); // Now It's Saved
-}
-
-```
-
 #### You Want To Use Old Sytax And Just Use New Benefits Like NewFontLoader & NewTextLoader ??
 
 #### Really?!! But Why ?!
@@ -370,18 +374,17 @@ CFontNew::PrintStringFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FRO
 
 What?!
 
-It Changes `CFont` ??
+It Changes `CFont` Class ??
 
-No, It Just Inherits CFont
+No, It Just Extends `CFont` Class
 
 ```cpp
 // So Calling
 CFont::SetRightJustifyOn();
 // Or
 CFontNew::SetRightJustifyOn();
+// Basically Doesnt Have Any Difference
 ```
-
-Basically Doesnt Have Any Difference
 
 ### How To Add New Fonts?
 
@@ -426,29 +429,29 @@ No Any Guarantee That I Will Port That, But You Can Do That
 
 ### What About Performance?
 #### It's OK, Any Instance Get Invalid When You Don't Need That
-However if you find performance issues, report that (here)[https://github.com/DoK-K/TExtender/issues]
+However if you find performance issues, report that [here](https://github.com/DoK-K/TExtender/issues)
 
 ## Credits:
 
-DoKtor K. - Who Enjoys Coding And Loves Enjoyable Code
+*   #### DoKtor K. - Who Enjoys Coding And Loves Enjoyable Code
 
-[DK22Pac](https://github.com/DK22Pac) - Who Started With A Great Belief To "Change" And Started The Great Project Plugin-SDK
+*   #### [DK22Pac](https://github.com/DK22Pac) - Who Started With A Great Belief To "Change" And Then Started The Great Project Plugin-SDK
 
-[\_AG](https://github.com/gennariarmando) - Who Learns Me A Lot, without learning directly :D
+*   #### [\_AG](https://github.com/gennariarmando) - Who Learns Me A Lot, Without learning directly :D
 
-All Of [Plugin-SDK Contributors](https://github.com/DK22Pac/plugin-sdk/graphs/contributors)
+*   #### All Of [Plugin-SDK Contributors](https://github.com/DK22Pac/plugin-sdk/graphs/contributors)
 
-And Last, But Not Least, THE GREAT HERO “aap” Who Changed Entire Level of Everything with re3 / reVC  
-All of [re3](https://github.com/gtamodding/re3) Contributors, The Great People On The World
+*   ### And Last, But Not Least, THE GREAT HERO “aap” Who Changed Entire Level of Everything with re3 / reVC  
+*   #### All of [re3](https://github.com/gtamodding/re3) Contributors, The Great People On The World
 
-### All of GTA Modding Community  
+*   #### All of GTA Modding Community  
   
 ## Links:
 
 [**Plugin-SDK**](https://github.com/DK22Pac/plugin-sdk)
 
-[**directFont**](https://github.com/DK22Pac/directFont)
+[**directFont**](https://github.com/DK22Pac/directFont) (Load TTF Fonts Into D3DX Format)
 
-[**effects-loader**](https://github.com/DK22Pac/effects-loader)
+[**effects-loader**](https://github.com/DK22Pac/effects-loader) (Search ForAllFiles Method)
 
 And Finally Excuse Me for PascalCasing, I Like This Style :D
