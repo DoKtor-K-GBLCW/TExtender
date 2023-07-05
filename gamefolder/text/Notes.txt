@@ -1,0 +1,7 @@
+_put your .xfxt files here
+Files Will Loaded Alphabetically, So Later Texts Will Overwrite Other .xfxt s
+But Don't Worry About This, Any .xfxt Will Overwrite GXT Entries
+
+All Credits Of NewTextLoader Goes to:
+https://github.com/gennariarmando
+https://github.com/DK22Pac/plugin-sdk/commit/b9ab0a97702afae084f047bdeec55613865fba47

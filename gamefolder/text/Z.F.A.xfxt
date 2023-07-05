@@ -1,0 +1,59 @@
+# ; // Put Any of Those Chars First Of Line To Disable It
+
+# Key: Must Be Between [ and ] to Detect
+[CHEAT1]
+# Value / String
+رمز فعال شد!
+
+[CHEATOF]
+رمز غیرفعال است
+
+# Note: There Must NOT Be Empty Line Between Key & Value
+# If You Want a New Line, Use: ~N~
+
+[CHEAT2]
+اسلحه دریافت شد
+
+[CHEAT3]
+@DEAD
+# Forward-Linking
+# will give you: "ریغ رحمت را بالا دادید!"
+
+# Note: Forward-Linking Can't Detect GXT Entries Yet, But I Will Add Support for Them Later
+
+[CHEAT4]
+رمز ضدگلوله
+
+[CHEAT5]
+میزان عشق پلیس ها به شما
+
+[CHEAT6]
+رمز پول
+
+[CHEAT7]
+رمز آب و هوا
+
+[PU_CF1]
+کلید ~h~~k~~PED_ANSWER_PHONE~ ~w~را برای جابجایی این اسلحه با یکی از اسلحه های مشابه خود، بزنید
+
+[DEAD]
+ریغ رحمت را بالا دادید!
+
+[BUSTED]
+یک بار جستی ملخک، دو بار جستی ملخک...
+
+# All of Below Keys Are Valid If You Use Them From C++
+# Only Limitaion Is Using English Language in Keys (Use ASCII Printable Characters, Excluding [ ]) Take A Look At: https://www.ascii-code.com/
+# But If you Want To Use In GTA Opcodes, There Is Limitation of Max 7 CHARS AND Your Characters Are Limited To: A-Z (lower and upper) 0-9 And _ underline
+# Note: Limitation Only Applies to Keys, And Not Values / Strings
+[KEY_1]
+Value 1 Without Old Limits
+
+[KEY 2]
+I Like To Have Spaces In Me :D
+
+[and Even WoRSE. What?]
+I Will Tell You
+
+[Garages::NoFreebies]
+This text can be used only from C++
