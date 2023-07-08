@@ -698,6 +698,51 @@ void CFontNew::ProcessTags(wchar* dest, wchar* src, CFontDetails* _details) {
 				break;
 			}
 		}
+		else if (text[i] == L'~' && text[i + 5] == L'~' && (text[i + 1] == L'a' || text[i + 1] == L'A'))
+		{
+			bool forceAlpha = text[i + 1] == L'A';
+			i+=2;
+			static wchar_t color_alpha[5];
+			std::wmemcpy(color_alpha, &src_t[i], 3);
+			color_alpha[3] = '\0';
+			int iAlpha;
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_alpha), "%03d", &iAlpha) == 1)
+				currColor = CRGBA(currColor.r, currColor.g, currColor.b, forceAlpha ? iAlpha : (int)((iAlpha / 255.0f) * _details->color.alpha));
+			i += 3;
+		}
+		else if (text[i] == L'~' && text[i + 7] == L'~')
+		{
+			i++;
+			static wchar_t color_6[8];
+			std::wmemcpy(color_6, &src_t[i], 6);
+			color_6[6] = '\0';
+			int r, g, b;
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_6), "%02x%02x%02x", &r, &g, &b) == 3)
+				currColor = CRGBA(r, g, b, _details->color.alpha);
+			i+= 6;
+		}
+		else if (text[i] == L'~' && text[i + 9] == L'~')
+		{
+			i++;
+			static wchar_t color_8[10];
+			std::wmemcpy(color_8, &src_t[i], 8);
+			color_8[8] = '\0';
+			int r, g, b, a;
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_8), "%02x%02x%02x%02x", &r, &g, &b, &a) == 4)
+				currColor = CRGBA(r, g, b, (int)((a / 255.0f) * _details->color.alpha));
+			i += 8;
+		}
+		else if (text[i] == L'~' && text[i + 10] == L'~')
+		{
+			i++;
+			static wchar_t color_9[11];
+			std::wmemcpy(color_9, &src_t[i], 9);
+			color_9[9] = '\0';
+			int r, g, b, a;
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_9), "%02x%02x%02x0%02x", &r, &g, &b, &a) == 4)
+				currColor = CRGBA(r, g, b, a);
+			i += 9;
+		}
 		else {
 			*outText = text[i];
 			if (text[i] != L' ') {
@@ -927,6 +972,14 @@ TextPrinter::SetOrientation(short alignment) // eFontAlignment alignment
 	_details.centre = alignment == ALIGN_CENTER;
 	_details.rightJustify = alignment == ALIGN_RIGHT;
 	return *this; // Fake IT Until Make It :D, // Update: We Made It ;)
+}
+
+TextPrinter &
+TextPrinter::ClearOrientation()
+{
+	_details.centre = false;
+	_details.rightJustify = false;
+	return *this;
 }
 
 TextPrinter &
@@ -1421,6 +1474,12 @@ TextPrinter::AlphaFade(float fade)
 	return SetAlphaFade(fade);
 }
 
+TextPrinter&
+TextPrinter::Alpha(float fade)
+{
+	return SetAlphaFade(fade);
+}
+
 TextPrinter &
 TextPrinter::DropColor(CRGBA col)
 {
@@ -1460,6 +1519,12 @@ TextPrinter::RightJustifyWrap()
 
 float
 TextPrinter::AlphaFade()
+{
+	return _details.alphaFade;
+}
+
+float
+TextPrinter::Alpha()
 {
 	return _details.alphaFade;
 }
@@ -1570,6 +1635,17 @@ float
 TextPrinter::CentreSize()
 {
 	return _details.centreSize;
+}
+
+float
+TextPrinter::HorizantalWrap()
+{
+	if (_details.rightJustify)
+		return _details.rightJustifyWrap;
+	else if (_details.centre)
+		return _details.centreSize;
+	else
+		return _details.wrapX;
 }
 
 CRGBA const&

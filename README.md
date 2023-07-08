@@ -65,11 +65,11 @@ CFont::SetDropShadowPosition(0);
 {
 TExtender::TextPrinter tPrinter;
 tPrinter
-    .AlphaFade(fAlpha)
     .Proportional(true)
     .Scale(isPersian ? CVector2D(SCREEN_SCALE_X(0.72f), SCREEN_SCALE_Y(1.4f)) : CVector2D(SCREEN_SCALE_X(0.52f), SCREEN_SCALE_Y(1.1f)))
     .FontStyle(notIsEnglish ? 7 : 0)
     .Color(CRGBA(175, 175, 175, 255))
+    .Alpha(fAlpha)
     .Background(true, CRGBA(64, 0, 128, fAlpha * 0.9f));
 
 if (notIsEnglish)
@@ -171,7 +171,7 @@ For Understand What **TExtender** Do, We Should Understand What GTA Does for Sho
 It Consists Of 3 Levels:
 
 1.  Loading Fonts
-2.  Loading Text
+2.  Loading Texts
 3.  Rendering Texts In Each Frame
 
 #### **TExtender** uses Power of [**Plugin-SDK**](https://github.com/DK22Pac/plugin-sdk) **To Empower** And **Enrich reVC Text Engine,** By Improving **All of These 3 Levels**
@@ -276,9 +276,49 @@ Expect An Easier Way? Right
 ```cpp
 tPrinter
     .Shadow(0.5f, CRGBA(0, 255, 0, 255))
-    .Outline(1.0f, Colors.Orange)
+    .Outline(1.0f, Colors::Orange)
 ```
 
+Speaking Of Colors, Any Old Color Tag is Supported In Values, Plus Custom RGB Tags
+```ini
+[GameLogic::WatedText]
+Hello ~R~Red ~W~White ~p~Purple ~l~Black ... But Also ~FF0000~ Yes, It's A Good Red ~FFC90E~:D
+
+[GameLogic::BustedText]
+Something Missing? Like ~0000FFFF~Alpha? What About ~0000FF0FF~Force Alpha? ~R~put a 0 Before Alpha
+
+# Want To Keep Color And Only Change Alpha?
+# There Are Two Ways: Combined & Forced
+[GA_23]
+Not ~a255~Enough ~A255~Money
+# Note: You Have To Zero-Pad This Value To Use This Feature, So 99 Must Be 099, 9 Must Be 009
+
+```
+Want To Convert Your Colors To Hex?
+Try The Fastest Way:
+*   Press `F12` In Your Browser
+*   Go To `Console`
+*   Write This And Press Enter, Wasn't Hard No? :P
+```js
+(255).toString(16)
+```
+
+**Note!
+Only TE Renderer Can Understand And Use New Color Tags,
+So You Must Use `TPrinter` or `CFontNew::PrintString` Otherwise You Will See Color Values In Your Message**
+
+
+Want To Set Text Color Globallay?
+```cpp
+tPrinter
+    .TextColor(Colors::Crimson) // same as CFont::SetColor()
+    .Alpha(255) // same as CFont::SetAlphaFade()
+
+// Note: If You Use Color Tags, Color Of That Part will be Overwritten
+// If You Use Forced Alpha eg: ~A255~ Or ~0000FF0FF~, Alpha Of That Part will be Overwritten
+```
+
+#### Orientation
 In GTA If We Have Setted `SetJustifyOn()` Then We Should `SetWrapx()`
 
  If We Have Setted `SetRightJustifyOn()` Then We Should `SetRightJustifyWrap()`
@@ -301,6 +341,53 @@ tPrinter.RightJustify(true);
 tPrinter.Centred(true);
 // Then
 tPrinter.HorizantalWrap(0.5f); // works for any of them that is active now
+```
+
+So Instead Of
+```cpp
+switch (alignment) {
+    case AlignCenter:
+        CFont::SetRightJustifyOff();
+        CFont::SetJustifyOff();
+        CFont::SetCentreOn();
+        CFont::SetCentreSize(SCREEN_SCALE_X(lineSize));
+        break;
+    case AlignLeft:
+        CFont::SetCentreOff();
+        CFont::SetRightJustifyOff();
+        CFont::SetJustifyOn();
+        CFont::SetWrapx(SCREEN_SCALE_X(lineSize));
+        break;
+    case AlignRight:
+        CFont::SetCentreOff();
+        CFont::SetJustifyOff();
+        CFont::SetRightJustifyOn();
+        CFont::SetRightJustifyWrap(SCREEN_SCALE_X(lineSize));
+        break;
+}
+```
+
+You Can:
+
+```cpp
+tPrinter
+    .Orientation(alignment) // same as SA CFont::SetOrientation()
+    .HorizantalWrap(SCREEN_SCALE_X(lineSize));
+if(alignment == AlignLeft)
+    tPrinter.SetJustifyOn(); // Yes, Old Setters Are Supported
+```
+
+```cpp
+// plus there is:
+short tPrinter.Orientation(); // get
+float tPrinter.HorizantalWrap(); // get
+// and
+tPrinter.ClearOrientation();
+/*
+instead of
+SetCentreOff();
+SetRightJustifyOff();
+*/
 ```
 
 #### You Want To Use Old Sytax And Just Use New Benefits Like NewFontLoader & NewTextLoader ??

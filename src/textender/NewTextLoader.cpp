@@ -156,22 +156,38 @@ namespace TExtender {
 
 		auto iter = stringMap.find(key);
 
+		static wchar_t value[MAX_TEXT_SIZE];
 		if (iter != stringMap.end()) {
-			auto value = ((wchar*)iter->second.c_str());
+			wmemset(value, 0, MAX_TEXT_SIZE);
+			std::wmemcpy(value, iter->second.c_str(), min(iter->second.length(), MAX_TEXT_SIZE));
 			
 			// Unlimited Forward-Linking
-			while (value && (Utils::WideCharToConstChar(value)[0] == '@')) {
-				auto value_w = std::wstring((wchar_t*)value);
+			while (value[0] == L'@') {
+				auto value_w = std::wstring(value);
 				std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 				auto newKey = converter.to_bytes(value_w.substr(1, value_w.size() - 1));
 				auto iter2 = stringMap.find(newKey);
-				if (iter2 != stringMap.end())
-					value = ((wchar*)iter2->second.c_str());
-				else
-					break;
+				if (iter2 != stringMap.end()) { // search in xfxt storage
+					wmemset(value, 0, MAX_TEXT_SIZE);
+					std::wmemcpy(value, iter2->second.c_str(), min(iter2->second.length(), MAX_TEXT_SIZE));
+				}
+				else { // search in gxt storage
+					auto gxtVal = TheText.Get(newKey.c_str(), true); // return null if you cant find
+					if (gxtVal) {
+						auto gxtValW = std::wstring((wchar_t*)gxtVal);
+						wmemset(value, 0, MAX_TEXT_SIZE);
+						std::wmemcpy(value, gxtValW.c_str(), min(gxtValW.length(), MAX_TEXT_SIZE));
+					}
+					else // not found, return value exactly, eg: "@MAP_YAH"
+						break;
+				}
 			}
 
-			return value;
+			auto s_len = wcslen(value);
+			if(!s_len)
+				return NULL;
+			value[s_len] = '\0';
+			return (wchar *)value;
 		}
 
 		return NULL;

@@ -172,6 +172,7 @@ namespace TExtender {
 		TextPrinter& SetBackground(bool enable); // , bool includeWrap
 		TextPrinter& SetBackground(bool on, CRGBA col);
 		TextPrinter& SetOrientation(short alignment); // eFontAlignment alignment
+		TextPrinter& ClearOrientation();
 
 		TextPrinter& SetShadowColor(CRGBA col);
 		TextPrinter& SetShadowWidth(float s);
@@ -208,6 +209,7 @@ namespace TExtender {
 		TextPrinter& RightJustifyWrap(float wrap);
 		TextPrinter& HorizantalWrap(float wrap);
 		TextPrinter& AlphaFade(float fade);
+		TextPrinter& Alpha(float fade);
 		TextPrinter& DropShadowPosition(int16 pos);
 		TextPrinter& Color(CRGBA col);
 		TextPrinter& TextColor(CRGBA col);
@@ -234,6 +236,7 @@ namespace TExtender {
 		bool Centred();
 		float WrapX();
 		float CentreSize();
+		float HorizantalWrap();
 		// ups text background
 		bool Background();
 		bool BackGroundOnlyText();
@@ -242,6 +245,7 @@ namespace TExtender {
 		uint8 FontStyle();
 		float RightJustifyWrap();
 		float AlphaFade();
+		float Alpha();
 		int16 DropShadowPosition();
 		CRGBA const& BackgroundColor();
 		CRect const& BackgroundBorder();

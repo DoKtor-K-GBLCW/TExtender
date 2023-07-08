@@ -1,5 +1,18 @@
 # ; // Put Any of Those Chars First Of Line To Disable It
 
+# Note! Any Coloring Method You See Below, Doesn't Affect Other GXT Entries, It's Bounded To That Text. So Its Safe To Keep Color Tags Open
+
+[MY_KEY]
+Hello~FFC90E~ Great ~00FF00~Guys, ~S~This Is Comibation of Old And New Text Colors ~N~However You Can~00FF00FF~ To Set Color And Alpha Or Put A Zero Before Last 2 Chars ~00FF000FF~To Force Alpha
+# Use That In a TextBox for better understand what's difference between set alpha & force alpha
+
+[MY_KEY2]
+You Want To Set Only Alpha? You Want ~a099~This Style Or ~A255~This Style?
+# Use That In a TextBox for better understand what's difference between set alpha & force alpha here
+
+# Note! Don't Forget To Reset Alpha, After Your Targeted Words, How?
+# Simply `~a255~`
+
 # Key: Must Be Between [ and ] to Detect
 [CHEAT1]
 # Value / String
@@ -15,23 +28,25 @@
 اسلحه دریافت شد
 
 [CHEAT3]
-@DEAD
+@MAP_YAH
 # Forward-Linking
-# will give you: "ریغ رحمت را بالا دادید!"
+# will give you: "YOU ARE HERE"
 
-# Note: Forward-Linking Can't Detect GXT Entries Yet, But I Will Add Support for Them Later
+# Note: Forward-Linking Now Can Detect GXT Entries, So You Can Link To Original Game Texts Until You Want To Change That
 
 [CHEAT4]
-رمز ضدگلوله
+# رمز ضدگلوله
+@CHEAT5
+# Note: Forward-Linking To Other Entries (in any .xfxt file)
 
 [CHEAT5]
-میزان عشق پلیس ها به شما
+میزان ~R~عشق~S~ پلیس ها به شما
 
 [CHEAT6]
-رمز پول
+رمز ~00FF00~پول
 
 [CHEAT7]
-رمز آب و هوا
+رمز ~a128~آب ~a255~و هوا
 
 [PU_CF1]
 کلید ~h~~k~~PED_ANSWER_PHONE~ ~w~را برای جابجایی این اسلحه با یکی از اسلحه های مشابه خود، بزنید
