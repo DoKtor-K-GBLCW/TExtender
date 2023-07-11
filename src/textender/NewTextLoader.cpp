@@ -6,6 +6,7 @@
 */
 
 #include "NewTextLoader.h"
+#include "DynamicText.h"
 
 #include <locale>
 #include <codecvt>
@@ -154,6 +155,9 @@ namespace TExtender {
 
 	wchar* CNewTextLoader::Get(const char* key) {
 
+		if (CDynamicText::Exists(key))
+			return CDynamicText::Get(key);
+
 		auto iter = stringMap.find(key);
 
 		static wchar_t value[MAX_TEXT_SIZE];
@@ -166,6 +170,11 @@ namespace TExtender {
 				auto value_w = std::wstring(value);
 				std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 				auto newKey = converter.to_bytes(value_w.substr(1, value_w.size() - 1));
+
+				// To-Do: Implement Unlimited For Dynamics
+				if (CDynamicText::Exists(newKey))
+					return CDynamicText::Get(newKey);
+
 				auto iter2 = stringMap.find(newKey);
 				if (iter2 != stringMap.end()) { // search in xfxt storage
 					wmemset(value, 0, MAX_TEXT_SIZE);

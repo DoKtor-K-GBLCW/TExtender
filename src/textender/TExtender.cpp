@@ -10,6 +10,7 @@
 #include "Sprite.h"
 #include "Screen.h"
 #include "postfx.h"
+#include "General.h"
 #include "Colors.h"
 
 namespace TExtender {
@@ -623,6 +624,9 @@ void CFontNew::ProcessTags(wchar* dest, wchar* src, CFontDetails* _details) {
 	for (int j = 0; j < MAX_TEXT_SIZE; j++)
 		gLetterColors[j] = Colors::Transparent;
 
+	static wchar_t color_str[10];
+	wmemset(color_str, 0, 10);
+
 	for (size_t i = 0; i <= s_len; i++)
 	{
 		if (i == s_len)
@@ -702,44 +706,48 @@ void CFontNew::ProcessTags(wchar* dest, wchar* src, CFontDetails* _details) {
 		{
 			bool forceAlpha = text[i + 1] == L'A';
 			i+=2;
-			static wchar_t color_alpha[5];
-			std::wmemcpy(color_alpha, &src_t[i], 3);
-			color_alpha[3] = '\0';
-			int iAlpha;
-			if (sscanf(Utils::WideCharToConstChar((wchar*)color_alpha), "%03d", &iAlpha) == 1)
-				currColor = CRGBA(currColor.r, currColor.g, currColor.b, forceAlpha ? iAlpha : (int)((iAlpha / 255.0f) * _details->color.alpha));
+			std::wmemcpy(color_str, &src_t[i], 3);
+			color_str[3] = '\0';
+			int iAlpha = -1;
+			//if (sscanf(Utils::WideCharToConstChar((wchar*)color_alpha), "%03d", &iAlpha) == 1) // I Wanted To Make That More Optimized :|
+			char *endPtr;
+			auto color_cstr = Utils::WideCharToConstChar((wchar*)color_str);
+			if(!CGeneral::faststricmp(color_cstr, "000"))
+				currColor = CRGBA(currColor.r, currColor.g, currColor.b, 0);
+			else {
+				iAlpha = strtol(color_cstr, &endPtr, 0);
+				if(iAlpha && ~iAlpha)
+					currColor = CRGBA(currColor.r, currColor.g, currColor.b, forceAlpha ? iAlpha : (int)((iAlpha / 255.0f) * _details->color.alpha));
+			}
 			i += 3;
 		}
 		else if (text[i] == L'~' && text[i + 7] == L'~')
 		{
 			i++;
-			static wchar_t color_6[8];
-			std::wmemcpy(color_6, &src_t[i], 6);
-			color_6[6] = '\0';
+			std::wmemcpy(color_str, &src_t[i], 6);
+			color_str[6] = '\0';
 			int r, g, b;
-			if (sscanf(Utils::WideCharToConstChar((wchar*)color_6), "%02x%02x%02x", &r, &g, &b) == 3)
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_str), "%02x%02x%02x", &r, &g, &b) == 3)
 				currColor = CRGBA(r, g, b, _details->color.alpha);
 			i+= 6;
 		}
 		else if (text[i] == L'~' && text[i + 9] == L'~')
 		{
 			i++;
-			static wchar_t color_8[10];
-			std::wmemcpy(color_8, &src_t[i], 8);
-			color_8[8] = '\0';
+			std::wmemcpy(color_str, &src_t[i], 8);
+			color_str[8] = '\0';
 			int r, g, b, a;
-			if (sscanf(Utils::WideCharToConstChar((wchar*)color_8), "%02x%02x%02x%02x", &r, &g, &b, &a) == 4)
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_str), "%02x%02x%02x%02x", &r, &g, &b, &a) == 4)
 				currColor = CRGBA(r, g, b, (int)((a / 255.0f) * _details->color.alpha));
 			i += 8;
 		}
 		else if (text[i] == L'~' && text[i + 10] == L'~')
 		{
 			i++;
-			static wchar_t color_9[11];
-			std::wmemcpy(color_9, &src_t[i], 9);
-			color_9[9] = '\0';
+			std::wmemcpy(color_str, &src_t[i], 9);
+			color_str[9] = '\0';
 			int r, g, b, a;
-			if (sscanf(Utils::WideCharToConstChar((wchar*)color_9), "%02x%02x%02x0%02x", &r, &g, &b, &a) == 4)
+			if (sscanf(Utils::WideCharToConstChar((wchar*)color_str), "%02x%02x%02x0%02x", &r, &g, &b, &a) == 4)
 				currColor = CRGBA(r, g, b, a);
 			i += 9;
 		}
