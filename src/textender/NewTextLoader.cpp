@@ -155,15 +155,19 @@ namespace TExtender {
 
 	wchar* CNewTextLoader::Get(const char* key) {
 
-		if (CDynamicText::Exists(key))
-			return CDynamicText::Get(key);
-
 		auto iter = stringMap.find(key);
 
 		static wchar_t value[MAX_TEXT_SIZE];
-		if (iter != stringMap.end()) {
+		if ((iter != stringMap.end()) || CDynamicText::Exists(key)) {
+
 			wmemset(value, 0, MAX_TEXT_SIZE);
-			std::wmemcpy(value, iter->second.c_str(), min(iter->second.length(), MAX_TEXT_SIZE));
+
+			if(CDynamicText::Exists(key)) { // First Search in Dynamic Entries
+				auto dyvalue_w = std::wstring((wchar_t*)CDynamicText::Get(key));
+				std::wmemcpy(value, dyvalue_w.c_str(), min(dyvalue_w.length(), MAX_TEXT_SIZE));
+			}
+			else
+				std::wmemcpy(value, iter->second.c_str(), min(iter->second.length(), MAX_TEXT_SIZE));
 			
 			// Unlimited Forward-Linking
 			while (value[0] == L'@') {
@@ -171,9 +175,13 @@ namespace TExtender {
 				std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 				auto newKey = converter.to_bytes(value_w.substr(1, value_w.size() - 1));
 
-				// To-Do: Implement Unlimited For Dynamics
-				if (CDynamicText::Exists(newKey))
-					return CDynamicText::Get(newKey);
+				// Search In Dynamic Entries
+				if (CDynamicText::Exists(newKey)) {
+					wmemset(value, 0, MAX_TEXT_SIZE);
+					auto dyvalue_w = std::wstring((wchar_t*)CDynamicText::Get(newKey));
+					std::wmemcpy(value, dyvalue_w.c_str(), min(dyvalue_w.length(), MAX_TEXT_SIZE));
+					continue;
+				}
 
 				auto iter2 = stringMap.find(newKey);
 				if (iter2 != stringMap.end()) { // search in xfxt storage
